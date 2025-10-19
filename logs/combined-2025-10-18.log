@@ -1,0 +1,6 @@
+{"level":"info","message":"🚀 Serveur Heraclion démarré sur le port 3000","service":"heraclion-backend","timestamp":"2025-10-18T09:24:24.761Z"}
+{"level":"info","message":"📝 Documentation API disponible sur http://localhost:3000/api/docs","service":"heraclion-backend","timestamp":"2025-10-18T09:24:24.764Z"}
+{"level":"info","message":"🌍 Environnement: development","service":"heraclion-backend","timestamp":"2025-10-18T09:24:24.772Z"}
+{"level":"info","message":"Réception du signal SIGINT. Arrêt propre du serveur...","service":"heraclion-backend","timestamp":"2025-10-18T09:24:54.862Z"}
+{"level":"info","message":"Serveur HTTP fermé","service":"heraclion-backend","timestamp":"2025-10-18T09:24:54.872Z"}
+{"level":"info","message":"Connexions à la base de données fermées","service":"heraclion-backend","timestamp":"2025-10-18T09:24:54.932Z"}

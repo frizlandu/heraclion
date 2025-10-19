@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "axios": "^1.12.2",
+    "chart.js": "^4.5.1",
+    "pdfkit": "^0.17.2",
+    "react": "^19.2.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "cypress": "^15.4.0"
+  }
+}

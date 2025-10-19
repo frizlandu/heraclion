@@ -1,0 +1,656 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Heraclion API",
+    "description": "API complète pour le système de gestion Heraclion - Factures, Clients, Stocks, Comptabilité",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Support Heraclion",
+      "email": "support@heraclion.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Serveur de développement"
+    },
+    {
+      "url": "https://api.heraclion.com",
+      "description": "Serveur de production"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT d'authentification"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["success", "message"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Erreur de validation"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "default": 50,
+            "description": "Nombre d'éléments par page"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Nombre d'éléments à ignorer"
+          },
+          "sort_by": {
+            "type": "string",
+            "description": "Champ de tri"
+          },
+          "sort_order": {
+            "type": "string",
+            "enum": ["ASC", "DESC"],
+            "default": "ASC",
+            "description": "Ordre de tri"
+          }
+        }
+      },
+      "Document": {
+        "type": "object",
+        "required": ["type_document", "client_id", "entreprise_id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true,
+            "example": 1
+          },
+          "numero": {
+            "type": "string",
+            "readOnly": true,
+            "example": "FAC-2024-001"
+          },
+          "type_document": {
+            "type": "string",
+            "enum": ["FACTURE", "PROFORMA"],
+            "example": "FACTURE"
+          },
+          "client_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "entreprise_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "date_emission": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-15"
+          },
+          "date_echeance": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-02-15"
+          },
+          "statut": {
+            "type": "string",
+            "enum": ["BROUILLON", "EMISE", "ENVOYEE", "PAYEE", "ANNULEE"],
+            "example": "EMISE"
+          },
+          "sous_total": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 1000.00
+          },
+          "montant_tva": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 200.00
+          },
+          "total_ttc": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 1200.00
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentItem"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "DocumentItem": {
+        "type": "object",
+        "required": ["description", "quantite", "prix_unitaire"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Service de transport"
+          },
+          "quantite": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 1
+          },
+          "prix_unitaire": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 1000.00
+          },
+          "taux_tva": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100,
+            "default": 20,
+            "example": 20
+          },
+          "montant_ht": {
+            "type": "number",
+            "format": "float",
+            "readOnly": true,
+            "example": 1000.00
+          },
+          "montant_tva": {
+            "type": "number",
+            "format": "float",
+            "readOnly": true,
+            "example": 200.00
+          },
+          "montant_ttc": {
+            "type": "number",
+            "format": "float",
+            "readOnly": true,
+            "example": 1200.00
+          }
+        }
+      },
+      "Client": {
+        "type": "object",
+        "required": ["nom", "entreprise_id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true,
+            "example": 1
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "SARL Durand"
+          },
+          "contact_principal": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Jean Durand"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 100,
+            "example": "contact@durand.com"
+          },
+          "telephone": {
+            "type": "string",
+            "pattern": "^[\\+]?[0-9\\s\\-\\(\\)\\.]{8,20}$",
+            "example": "01 23 45 67 89"
+          },
+          "adresse": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "123 Rue de la Paix, 75001 Paris"
+          },
+          "code_postal": {
+            "type": "string",
+            "pattern": "^[0-9]{5}$",
+            "example": "75001"
+          },
+          "ville": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Paris"
+          },
+          "pays": {
+            "type": "string",
+            "maxLength": 100,
+            "default": "France",
+            "example": "France"
+          },
+          "siret": {
+            "type": "string",
+            "pattern": "^[0-9]{14}$",
+            "example": "12345678901234"
+          },
+          "numero_tva": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "FR12345678901"
+          },
+          "delai_paiement": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365,
+            "default": 30,
+            "example": 30
+          },
+          "actif": {
+            "type": "boolean",
+            "default": true,
+            "example": true
+          },
+          "entreprise_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "Entreprise": {
+        "type": "object",
+        "required": ["nom", "prefix_facture", "type_entreprise"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true,
+            "example": 1
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "SARL Transport Express"
+          },
+          "logo": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "logos/entreprise1.png"
+          },
+          "telephone": {
+            "type": "string",
+            "pattern": "^[\\+]?[0-9\\s\\-\\(\\)\\.]{8,20}$",
+            "example": "01 23 45 67 89"
+          },
+          "adresse": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "456 Avenue des Transports, 69000 Lyon"
+          },
+          "prefix_facture": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 20,
+            "example": "FAC"
+          },
+          "type_entreprise": {
+            "type": "string",
+            "enum": ["TRANSPORT", "NON_TRANSPORT"],
+            "example": "TRANSPORT"
+          },
+          "siret": {
+            "type": "string",
+            "pattern": "^[0-9]{14}$",
+            "example": "98765432109876"
+          },
+          "numero_tva": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "FR98765432109"
+          },
+          "iban": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}$",
+            "example": "FR1420041010050500013M02606"
+          },
+          "actif": {
+            "type": "boolean",
+            "default": true,
+            "example": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "Article": {
+        "type": "object",
+        "required": ["code_article", "nom", "entreprise_id"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true,
+            "example": 1
+          },
+          "code_article": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "example": "ART001"
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "Carton d'emballage"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Carton standard 40x30x20cm"
+          },
+          "famille": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Emballage"
+          },
+          "unite_mesure": {
+            "type": "string",
+            "enum": ["UNITE", "KG", "LITRE", "METRE", "M2", "M3", "TONNE", "CAISSE", "PALETTE"],
+            "default": "UNITE",
+            "example": "UNITE"
+          },
+          "stock_actuel": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "readOnly": true,
+            "example": 100
+          },
+          "stock_minimum": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "default": 0,
+            "example": 10
+          },
+          "prix_achat_unitaire": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 2.50
+          },
+          "prix_vente_unitaire": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "example": 4.00
+          },
+          "actif": {
+            "type": "boolean",
+            "default": true,
+            "example": true
+          },
+          "entreprise_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": ["nom", "prenom", "email", "role", "entreprises_ids"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true,
+            "example": 1
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "Dupont"
+          },
+          "prenom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "Jean"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 100,
+            "example": "jean.dupont@heraclion.com"
+          },
+          "telephone": {
+            "type": "string",
+            "pattern": "^[\\+]?[0-9\\s\\-\\(\\)\\.]{8,20}$",
+            "example": "01 23 45 67 89"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["ADMIN", "COMPTABLE", "COMMERCIAL", "RESPONSABLE_STOCK", "UTILISATEUR"],
+            "example": "ADMIN"
+          },
+          "entreprises_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "example": [1, 2]
+          },
+          "actif": {
+            "type": "boolean",
+            "default": true,
+            "example": true
+          },
+          "derniere_connexion": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Ressource non trouvée",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Ressource non trouvée"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Non autorisé - Token manquant ou invalide",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Token d'authentification requis"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Accès interdit - Permissions insuffisantes",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Erreur de validation des données",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Données invalides",
+              "errors": [
+                {
+                  "field": "email",
+                  "message": "Format d'email invalide"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Erreur interne du serveur",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Erreur interne du serveur"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentification et gestion des sessions"
+    },
+    {
+      "name": "Documents",
+      "description": "Gestion des factures et proformas"
+    },
+    {
+      "name": "Clients",
+      "description": "Gestion des clients"
+    },
+    {
+      "name": "Entreprises",
+      "description": "Gestion des entreprises"
+    },
+    {
+      "name": "Stock",
+      "description": "Gestion des stocks et articles"
+    },
+    {
+      "name": "Comptabilité",
+      "description": "Gestion comptable"
+    },
+    {
+      "name": "Utilisateurs",
+      "description": "Gestion des utilisateurs"
+    },
+    {
+      "name": "Jobs",
+      "description": "Tâches planifiées et automatisées"
+    }
+  ]
+}

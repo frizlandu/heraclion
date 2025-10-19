@@ -1,0 +1,135 @@
+{
+  "name": "heraclion-backend",
+  "version": "1.0.0",
+  "description": "Backend pour l'application de gestion HERACLION - Factures, Proformas, Stock & Comptabilité",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "dev:debug": "nodemon --inspect server.js",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "migrate": "node scripts/migrate.js",
+    "migrate:rollback": "node scripts/rollback.js",
+    "seed": "node scripts/seed-data.js",
+    "seed:dev": "npm run seed",
+    "db:reset": "npm run migrate:rollback && npm run migrate && npm run seed:dev",
+    "test:api": "node scripts/test-api.js",
+    "backup": "node scripts/backup.js",
+    "jobs:start": "node jobs/scheduler.js",
+    "build": "echo 'No build step required for Node.js'",
+    "prestart": "npm run migrate",
+    "postinstall": "echo 'Installation completed successfully'",
+    "health-check": "node scripts/health-check.js",
+    "clean": "rm -rf node_modules package-lock.json",
+    "reinstall": "npm run clean && npm install"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "axios": "^1.6.2",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "connect-redis": "^7.1.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
+    "dayjs": "^1.11.10",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.3",
+    "express-rate-limit": "^7.1.5",
+    "express-session": "^1.17.3",
+    "express-slow-down": "^2.0.1",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^7.0.9",
+    "pdfkit": "^0.14.0",
+    "pg": "^8.11.3",
+    "qrcode": "^1.5.3",
+    "redis": "^4.6.12",
+    "sharp": "^0.33.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "validator": "^13.11.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1",
+    "ws": "^8.18.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-security": "^1.7.1",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "supertest": "^6.3.3",
+    "wait-port": "^1.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm test"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "node_modules",
+      "logs",
+      "uploads",
+      "temp"
+    ],
+    "ext": "js,json,env",
+    "delay": 1000
+  },
+  "keywords": [
+    "heraclion",
+    "factures",
+    "proformas",
+    "transport",
+    "comptabilité",
+    "stock",
+    "gestion",
+    "nodejs",
+    "express",
+    "postgresql"
+  ],
+  "author": "Heraclion Team <contact@heraclion.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heraclion/heraclion-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heraclion/heraclion-backend/issues"
+  },
+  "homepage": "https://github.com/heraclion/heraclion-backend#readme",
+  "private": true
+}

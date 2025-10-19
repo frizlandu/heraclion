@@ -1,0 +1,29 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"success":true,"data":{"data":[{"id":7,"reference":"AMO007","desig
+                    nation":"Amortisseur arrière SACHS","quantite_stock":30,"quantite_m
+                    in":6,"prix_achat":"95.00","prix_vente":"180.00","created_at":"202.
+                    ..
+RawContent        : HTTP/1.1 200 OK
+                    Content-Security-Policy: default-src 'self';style-src 'self' 
+                    'unsafe-inline' https://fonts.googleapis.com;font-src 'self' 
+                    https://fonts.gstatic.com;img-src 'self' data: https:;script-...
+Forms             : {}
+Headers           : {[Content-Security-Policy, default-src 'self';style-src 'self' 
+                    'unsafe-inline' https://fonts.googleapis.com;font-src 'self' 
+                    https://fonts.gstatic.com;img-src 'self' data: https:;script-src 
+                    'self';base-uri 'self';form-action 'self';frame-ancestors 
+                    'self';object-src 'none';script-src-attr 
+                    'none';upgrade-insecure-requests], [Cross-Origin-Opener-Policy, 
+                    same-origin], [Cross-Origin-Resource-Policy, same-origin], 
+                    [Origin-Agent-Cluster, ?1]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 2947
+
+
+

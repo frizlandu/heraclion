@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration PDF - HERACLION</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .file-drop-zone {
+            transition: all 0.3s ease;
+            border: 2px dashed #d1d5db;
+        }
+        .file-drop-zone.dragover {
+            border-color: #6366f1;
+            background-color: #eef2ff;
+        }
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Configuration PDF - HERACLION</h1>
+            <p class="text-gray-600">Personnalisez l'apparence de vos documents PDF</p>
+        </div>
+
+        <!-- Notification -->
+        <div id="notification" class="hidden mb-4 p-4 rounded-md">
+            <span id="notification-message"></span>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">État de la Configuration</h3>
+            <div id="status-info" class="text-sm text-gray-600">
+                Chargement...
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8">
+                <button onclick="showTab('templates')" id="tab-templates" class="tab-button border-indigo-500 text-indigo-600 py-2 px-1 border-b-2 font-medium text-sm">
+                    Templates
+                </button>
+                <button onclick="showTab('company')" id="tab-company" class="tab-button border-transparent text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 font-medium text-sm">
+                    Entreprise
+                </button>
+                <button onclick="showTab('logos')" id="tab-logos" class="tab-button border-transparent text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 font-medium text-sm">
+                    Logos
+                </button>
+                <button onclick="showTab('preview')" id="tab-preview" class="tab-button border-transparent text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 font-medium text-sm">
+                    Aperçu
+                </button>
+            </nav>
+        </div>
+
+        <!-- Templates Tab -->
+        <div id="templates-content" class="tab-content">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Templates disponibles</h2>
+            <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Les templates seront chargés ici -->
+            </div>
+        </div>
+
+        <!-- Company Tab -->
+        <div id="company-content" class="tab-content hidden">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Informations entreprise</h2>
+            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>
+                        <input type="text" id="company-name" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="HERACLION TRANSPORT">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                        <input type="text" id="company-address" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="123 Rue de la Logistique">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+                        <input type="text" id="company-city" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="13000 Marseille">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                        <input type="text" id="company-phone" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="04.XX.XX.XX.XX">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="company-email" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="contact@heraclion.fr">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">SIRET</label>
+                        <input type="text" id="company-siret" class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="123 456 789 00012">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button onclick="saveCompanyInfo()" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700">
+                        Sauvegarder les informations
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logos Tab -->
+        <div id="logos-content" class="tab-content hidden">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Gestion des logos</h2>
+            
+            <!-- Upload section -->
+            <div class="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Ajouter un logo</h3>
+                <div class="file-drop-zone border-2 border-dashed rounded-lg p-8" id="drop-zone">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">📁</div>
+                        <input type="file" id="logo-upload" accept="image/*" class="hidden" onchange="uploadLogo(this.files[0])">
+                        <label for="logo-upload" class="cursor-pointer">
+                            <span class="mt-2 block text-sm font-medium text-gray-900">
+                                Cliquez pour uploader ou glissez votre logo ici
+                            </span>
+                        </label>
+                        <p class="mt-1 text-xs text-gray-500">PNG, JPG ou JPEG jusqu'à 2MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logos grid -->
+            <div id="logos-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Les logos seront chargés ici -->
+            </div>
+        </div>
+
+        <!-- Preview Tab -->
+        <div id="preview-content" class="tab-content hidden">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Aperçu PDF</h2>
+            <div class="bg-white p-6 rounded-lg border border-gray-200 text-center">
+                <div class="text-6xl mb-4">📄</div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aperçu PDF</h3>
+                <p class="text-gray-600 mb-4">Générez un PDF de test avec vos paramètres actuels</p>
+                <button onclick="generatePreview()" class="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700">
+                    Générer un PDF d'aperçu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://localhost:3001/api/v1/pdf-config';
+        
+        let currentConfig = {};
+        let templates = [];
+        let logos = [];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfiguration();
+            setupDragDrop();
+        });
+
+        // Gestion des onglets
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Retirer la classe active de tous les boutons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-indigo-500', 'text-indigo-600');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Afficher le contenu sélectionné
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            
+            // Activer le bouton sélectionné
+            const activeButton = document.getElementById('tab-' + tabName);
+            activeButton.classList.add('border-indigo-500', 'text-indigo-600');
+            activeButton.classList.remove('border-transparent', 'text-gray-500');
+        }
+
+        // Chargement de la configuration
+        async function loadConfiguration() {
+            try {
+                const response = await fetch(API_BASE);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentConfig = data.data;
+                    updateStatusInfo();
+                    loadCompanyInfo();
+                }
+                
+                await loadTemplates();
+                await loadLogos();
+            } catch (error) {
+                showNotification('Erreur de connexion à l\'API: ' + error.message, 'error');
+            }
+        }
+
+        // Mise à jour du statut
+        function updateStatusInfo() {
+            const status = document.getElementById('status-info');
+            status.innerHTML = `
+                <p><strong>Template actuel:</strong> ${currentConfig.template || 'Aucun'}</p>
+                <p><strong>Logo actif:</strong> ${currentConfig.activeLogo || 'Aucun'}</p>
+                <p><strong>Entreprise:</strong> ${currentConfig.company?.name || 'Non configurée'}</p>
+            `;
+        }
+
+        // Chargement des templates
+        async function loadTemplates() {
+            try {
+                const response = await fetch(API_BASE + '/templates');
+                if (response.ok) {
+                    const data = await response.json();
+                    templates = data.data;
+                    renderTemplates();
+                }
+            } catch (error) {
+                showNotification('Erreur chargement templates: ' + error.message, 'error');
+            }
+        }
+
+        // Rendu des templates
+        function renderTemplates() {
+            const grid = document.getElementById('templates-grid');
+            grid.innerHTML = '';
+            
+            templates.forEach(template => {
+                const div = document.createElement('div');
+                div.className = `relative border rounded-lg p-6 cursor-pointer transition-all ${
+                    template.isActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'
+                }`;
+                
+                div.innerHTML = `
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">${template.name}</h3>
+                        <p class="text-sm text-gray-600">${template.description}</p>
+                    </div>
+                    <div class="flex space-x-2 mb-4">
+                        ${Object.entries(template.colors).slice(0, 4).map(([key, color]) => 
+                            `<div class="w-8 h-8 rounded-full border-2 border-white shadow-sm" style="background-color: ${color}" title="${key}: ${color}"></div>`
+                        ).join('')}
+                    </div>
+                    ${!template.isActive ? 
+                        `<button onclick="activateTemplate('${template.id}')" class="w-full py-2 px-4 border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50">
+                            Activer ce template
+                        </button>` : 
+                        '<div class="text-green-600 font-medium text-center">✓ Template actif</div>'
+                    }
+                `;
+                
+                grid.appendChild(div);
+            });
+        }
+
+        // Activation d'un template
+        async function activateTemplate(templateId) {
+            try {
+                const response = await fetch(`${API_BASE}/templates/${templateId}`, {
+                    method: 'PUT'
+                });
+                
+                if (response.ok) {
+                    showNotification(`Template "${templateId}" activé avec succès`);
+                    await loadConfiguration();
+                    await loadTemplates();
+                } else {
+                    throw new Error('Erreur lors de l\'activation');
+                }
+            } catch (error) {
+                showNotification('Erreur activation template: ' + error.message, 'error');
+            }
+        }
+
+        // Chargement des infos entreprise
+        function loadCompanyInfo() {
+            if (currentConfig.company) {
+                document.getElementById('company-name').value = currentConfig.company.name || '';
+                document.getElementById('company-address').value = currentConfig.company.address || '';
+                document.getElementById('company-city').value = currentConfig.company.city || '';
+                document.getElementById('company-phone').value = currentConfig.company.phone || '';
+                document.getElementById('company-email').value = currentConfig.company.email || '';
+                document.getElementById('company-siret').value = currentConfig.company.siret || '';
+            }
+        }
+
+        // Sauvegarde des infos entreprise
+        async function saveCompanyInfo() {
+            const companyData = {
+                company: {
+                    name: document.getElementById('company-name').value,
+                    address: document.getElementById('company-address').value,
+                    city: document.getElementById('company-city').value,
+                    phone: document.getElementById('company-phone').value,
+                    email: document.getElementById('company-email').value,
+                    siret: document.getElementById('company-siret').value
+                }
+            };
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(companyData)
+                });
+                
+                if (response.ok) {
+                    showNotification('Informations entreprise sauvegardées');
+                    await loadConfiguration();
+                } else {
+                    throw new Error('Erreur lors de la sauvegarde');
+                }
+            } catch (error) {
+                showNotification('Erreur sauvegarde: ' + error.message, 'error');
+            }
+        }
+
+        // Chargement des logos
+        async function loadLogos() {
+            try {
+                const response = await fetch(API_BASE + '/logos');
+                if (response.ok) {
+                    const data = await response.json();
+                    logos = data.data.logos;
+                    renderLogos();
+                }
+            } catch (error) {
+                showNotification('Erreur chargement logos: ' + error.message, 'error');
+            }
+        }
+
+        // Rendu des logos
+        function renderLogos() {
+            const grid = document.getElementById('logos-grid');
+            grid.innerHTML = '';
+            
+            if (logos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">Aucun logo disponible. Uploadez votre premier logo ci-dessus.</div>';
+                return;
+            }
+            
+            logos.forEach(logo => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 rounded-lg border border-gray-200';
+                
+                div.innerHTML = `
+                    <img src="${logo.url}" alt="${logo.name}" class="w-full h-24 object-contain bg-gray-50 rounded mb-3">
+                    <h4 class="text-sm font-medium text-gray-900 mb-1 truncate">${logo.name}</h4>
+                    <p class="text-xs text-gray-500 mb-3">${logo.sizeKB}KB</p>
+                    <div class="flex space-x-2">
+                        <button onclick="activateLogo('${logo.filename}')" class="flex-1 bg-indigo-600 text-white text-xs py-2 px-3 rounded hover:bg-indigo-700">
+                            ${currentConfig.activeLogo === logo.filename ? 'Actif' : 'Activer'}
+                        </button>
+                        <button onclick="deleteLogo('${logo.filename}')" class="bg-red-600 text-white text-xs py-2 px-3 rounded hover:bg-red-700">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                
+                grid.appendChild(div);
+            });
+        }
+
+        // Upload de logo
+        async function uploadLogo(file) {
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showNotification('Veuillez sélectionner un fichier image', 'error');
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('Le fichier ne doit pas dépasser 2MB', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('logo', file);
+            
+            try {
+                const response = await fetch(API_BASE + '/logos/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showNotification('Logo uploadé avec succès');
+                    await loadLogos();
+                } else {
+                    throw new Error('Erreur lors de l\'upload');
+                }
+            } catch (error) {
+                showNotification('Erreur upload: ' + error.message, 'error');
+            }
+        }
+
+        // Activation d'un logo
+        async function activateLogo(filename) {
+            try {
+                const response = await fetch(`${API_BASE}/logos/${filename}/activate`, {
+                    method: 'PUT'
+                });
+                
+                if (response.ok) {
+                    showNotification('Logo activé avec succès');
+                    await loadConfiguration();
+                    await loadLogos();
+                } else {
+                    throw new Error('Erreur lors de l\'activation');
+                }
+            } catch (error) {
+                showNotification('Erreur activation logo: ' + error.message, 'error');
+            }
+        }
+
+        // Suppression d'un logo
+        async function deleteLogo(filename) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce logo ?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/logos/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showNotification('Logo supprimé avec succès');
+                    await loadConfiguration();
+                    await loadLogos();
+                } else {
+                    throw new Error('Erreur lors de la suppression');
+                }
+            } catch (error) {
+                showNotification('Erreur suppression: ' + error.message, 'error');
+            }
+        }
+
+        // Génération d'aperçu PDF
+        async function generatePreview() {
+            try {
+                const response = await fetch(API_BASE + '/preview', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'apercu-document.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showNotification('PDF d\'aperçu généré et téléchargé');
+                } else {
+                    throw new Error('Erreur lors de la génération');
+                }
+            } catch (error) {
+                showNotification('Erreur génération PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Setup drag & drop
+        function setupDragDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length > 0) {
+                    uploadLogo(files[0]);
+                }
+            });
+        }
+
+        // Notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const messageElement = document.getElementById('notification-message');
+            
+            notification.className = `notification mb-4 p-4 rounded-md flex items-center ${
+                type === 'success' 
+                    ? 'bg-green-50 text-green-800 border border-green-200'
+                    : 'bg-red-50 text-red-800 border border-red-200'
+            }`;
+            
+            messageElement.textContent = message;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+{
+  "company": {
+    "name": "HERACLION TRANSPORT",
+    "address": "123 Rue de la Logistique",
+    "city": "13000 Marseille",
+    "phone": "04.XX.XX.XX.XX",
+    "email": "contact@heraclion-transport.fr",
+    "website": "www.heraclion-transport.fr",
+    "siret": "123 456 789 00012",
+    "tva": "FR12345678901",
+    "logo": "logo-1760563085891-670988863.png"
+  },
+  "templates": {
+    "moderne": {
+      "name": "Moderne",
+      "description": "Design moderne avec couleurs vives",
+      "colors": {
+        "primary": "#3B82F6",
+        "secondary": "#1E40AF",
+        "accent": "#10B981",
+        "background": "#F8FAFC",
+        "text": "#1F2937",
+        "success": "#059669",
+        "warning": "#D97706",
+        "error": "#DC2626"
+      }
+    },
+    "classique": {
+      "name": "Classique",
+      "description": "Design traditionnel en nuances de bleu",
+      "colors": {
+        "primary": "#1E3A8A",
+        "secondary": "#1E40AF",
+        "accent": "#3B82F6",
+        "background": "#F1F5F9",
+        "text": "#0F172A",
+        "success": "#166534",
+        "warning": "#92400E",
+        "error": "#991B1B"
+      }
+    },
+    "minimaliste": {
+      "name": "Minimaliste",
+      "description": "Design épuré en noir et blanc",
+      "colors": {
+        "primary": "#000000",
+        "secondary": "#374151",
+        "accent": "#6B7280",
+        "background": "#FFFFFF",
+        "text": "#111827",
+        "success": "#374151",
+        "warning": "#6B7280",
+        "error": "#000000"
+      }
+    }
+  },
+  "current": {
+    "template": "minimaliste",
+    "layout": {
+      "pageSize": "A4",
+      "margins": {
+        "top": 50,
+        "bottom": 50,
+        "left": 40,
+        "right": 40
+      },
+      "fonts": {
+        "title": {
+          "size": 20,
+          "weight": "bold"
+        },
+        "subtitle": {
+          "size": 16,
+          "weight": "bold"
+        },
+        "header": {
+          "size": 14,
+          "weight": "bold"
+        },
+        "body": {
+          "size": 12,
+          "weight": "normal"
+        },
+        "small": {
+          "size": 10,
+          "weight": "normal"
+        },
+        "tiny": {
+          "size": 8,
+          "weight": "normal"
+        }
+      }
+    },
+    "sections": {
+      "header": {
+        "enabled": true,
+        "showLogo": true,
+        "showCompanyInfo": true,
+        "showDocumentInfo": true,
+        "height": 120
+      },
+      "clientInfo": {
+        "enabled": true,
+        "showEmail": true,
+        "showPhone": true,
+        "backgroundColor": true
+      },
+      "table": {
+        "enabled": true,
+        "alternateRows": true,
+        "borderStyle": "solid",
+        "headerBackground": true,
+        "showBorders": true
+      },
+      "totals": {
+        "enabled": true,
+        "showBackground": true,
+        "showBorders": true,
+        "position": "right"
+      },
+      "footer": {
+        "enabled": true,
+        "showPageNumbers": true,
+        "showCompanyInfo": true,
+        "showNotes": true,
+        "height": 80
+      }
+    },
+    "formatting": {
+      "currency": {
+        "symbol": "€",
+        "position": "after",
+        "decimals": 2,
+        "locale": "fr-FR"
+      },
+      "dates": {
+        "format": "DD/MM/YYYY",
+        "locale": "fr-FR"
+      },
+      "numbers": {
+        "decimals": 2,
+        "thousandsSeparator": " ",
+        "decimalSeparator": ","
+      }
+    },
+    "texts": {
+      "documentTypes": {
+        "facture": "FACTURE",
+        "proforma": "FACTURE PROFORMA",
+        "devis": "DEVIS"
+      },
+      "labels": {
+        "clientInfo": "Facturé à :",
+        "documentInfo": "Informations document",
+        "itemDetails": "Détail des prestations",
+        "totals": "Récapitulatif",
+        "totalHT": "Total HT :",
+        "totalTVA": "Total TVA :",
+        "totalTTC": "TOTAL TTC :",
+        "paymentTerms": "Conditions de paiement :",
+        "notes": "Notes :"
+      },
+      "footer": {
+        "paymentTerms": "30 jours net à réception de facture",
+        "legalNotice": "En cas de retard de paiement, des pénalités de retard seront appliquées."
+      }
+    }
+  }
+}
