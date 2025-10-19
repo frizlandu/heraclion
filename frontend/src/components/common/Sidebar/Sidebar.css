@@ -1,0 +1,17 @@
+/* Styles CSS pour la sidebar */
+.sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-navigation a {
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar-navigation a:hover {
+  transform: translateX(2px);
+}
+
+.sidebar-logo {
+  max-height: 32px;
+  width: auto;
+}

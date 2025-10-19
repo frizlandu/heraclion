@@ -1,0 +1,34 @@
+/* MainLayout.css */
+.main-layout {
+  min-height: 100vh;
+  background-color: rgb(249 250 251);
+}
+
+.main-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .sidebar-mobile {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: 16rem;
+    transform: translateX(0);
+  }
+  
+  .sidebar-mobile.closed {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar-mobile.open {
+    transform: translateX(0);
+  }
+}
