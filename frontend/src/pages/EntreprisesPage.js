@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { entreprisesAPI } from '../services/entreprisesAPI';
 import toast from 'react-hot-toast';
 import DataTable from '../components/common/DataTable/DataTable';
-import { PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
+ import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+
 
 
 const EntreprisesPage = () => {
 
   const [entreprises, setEntreprises] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [, setError] = useState(null);
+
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [page, setPage] = useState(1);
@@ -87,6 +89,7 @@ const EntreprisesPage = () => {
         await entreprisesAPI.update(editEntreprise.id, form);
         toast.success('Entreprise modifiée');
       } else {
+       
         await entreprisesAPI.create(form);
         toast.success('Entreprise créée');
       }
@@ -110,20 +113,19 @@ const EntreprisesPage = () => {
     }
   };
 
-  // Ajoute la fonction pour supprimer tous les clients test
   const handleDeleteTestClients = async () => {
-    if (!window.confirm('Supprimer tous les clients test ?')) return;
-    try {
-      const testClients = entreprises.filter(e => e.nom && e.nom.toLowerCase().includes('test'));
-      for (const client of testClients) {
-        await entreprisesAPI.delete(client.id);
-      }
-      toast.success('Tous les clients test ont été supprimés');
-      fetchEntreprises();
-    } catch (err) {
-      toast.error('Erreur lors de la suppression des clients test');
+  if (!window.confirm('Supprimer tous les clients test ?')) return;
+  try {
+    const testClients = entreprises.filter(e => e.nom && e.nom.toLowerCase().includes('test'));
+    for (const client of testClients) {
+      await entreprisesAPI.delete(client.id);
     }
-  };
+    toast.success('Tous les clients test ont été supprimés');
+    fetchEntreprises();
+  } catch (err) {
+    toast.error('Erreur lors de la suppression des clients test');
+  }
+};
 
 
   // Colonnes DataTable façon Factures

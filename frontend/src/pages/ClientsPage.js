@@ -2,7 +2,7 @@
  * Page de gestion des clients
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
+
 import ClientList from '../components/clients/ClientList';
 import ClientForm from '../components/clients/ClientForm';
 import ClientView from '../components/clients/ClientView';
@@ -43,11 +43,7 @@ const ClientsPage = () => {
   }, [loadClients]);
 
   // Handlers pour les actions CRUD
-  const handleCreate = () => {
-    setSelectedClient(null);
-    setFormMode('create');
-    setShowForm(true);
-  };
+  
 
   const handleEdit = (client) => {
     setSelectedClient(client);
