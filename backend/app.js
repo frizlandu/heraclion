@@ -275,6 +275,17 @@ app.use('*', (req, res) => {
     }
   });
 });
+app.get('/ping', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'pong',
+    data: {
+      method: req.method,
+      url: req.originalUrl,
+      timestamp: new Date().toISOString()
+    }
+  });
+});
 
 app.use(errorLogger);
 
