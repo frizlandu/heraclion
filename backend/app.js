@@ -259,15 +259,11 @@ app.use('/api/auth', (req, res) => {
     message: 'Route d\'authentification en cours de développement'
   });
 });
-
-
-
-
-// ===== GESTION D'ERREURS =====
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route non trouvée',
+// ✅ Route de test Vercel ↔ Render
+app.get('/ping', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'pong',
     data: {
       method: req.method,
       url: req.originalUrl,
@@ -275,10 +271,13 @@ app.use('*', (req, res) => {
     }
   });
 });
-app.get('/ping', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'pong',
+
+
+// ===== GESTION D'ERREURS =====
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route non trouvée',
     data: {
       method: req.method,
       url: req.originalUrl,
