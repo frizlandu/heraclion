@@ -41,6 +41,10 @@ console.log('Après require ./wsDashboardPush');
 
 console.log('Avant app.listen');
 const server = app.listen(PORT, () => {
+  if (process.env.NODE_ENV === 'test') {
+  global.server = server;
+}
+
   console.log(`Backend démarré sur le port ${PORT}`);
   logger.info(`🚀 Serveur Heraclion démarré sur le port ${PORT}`);
   logger.info(`📝 Documentation API disponible sur http://localhost:${PORT}/api/docs`);

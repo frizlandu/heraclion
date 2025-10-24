@@ -1,0 +1,32 @@
+name: Vérification /ping Heraclion
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  ping-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v3
+
+    - name: Démarrer le backend (si applicable)
+      run: |
+        npm install
+        npm run start &
+        sleep 10 # Attendre que le serveur démarre
+
+    - name: Vérifier /ping
+      run: |
+        echo "🔍 Test de la route /ping..."
+        response=$(curl -s http://localhost:3000/ping)
+        echo "Réponse: $response"
+        success=$(echo $response | jq -r '.success')
+        if [ "$success" != "true" ]; then
+          echo "❌ La route /ping ne répond pas correctement."
+          exit 1
+        fi
+        echo "✅ /ping opérationnel."

@@ -3,6 +3,11 @@
  */
 
 module.exports = {
+   verbose: true,
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  detectOpenHandles: true,
+  
+ 
   // Environnement de test
   testEnvironment: 'node',
   
@@ -97,4 +102,14 @@ module.exports = {
   
   // Force la fermeture des processus après les tests
   forceExit: true
+};
+
+module.exports = {
+  verbose: true,
+  setupFilesAfterEnv: [
+    '<rootDir>/jest.setup.js',
+    '<rootDir>/tests/cleanup.js'
+  ],
+  testEnvironment: 'node',
+  detectOpenHandles: true
 };

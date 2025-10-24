@@ -418,3 +418,17 @@ describe('Document Routes Integration Tests', () => {
     });
   });
 });
+
+afterAll(async () => {
+  if (global.server && typeof global.server.close === 'function') {
+    await new Promise((resolve) => global.server.close(resolve));
+  }
+});
+
+
+beforeEach(() => {
+  const testUser = testHelpers.createTestUser({ role: 'ADMIN' });
+  const testClient = testHelpers.createTestClient();
+  const testEntreprise = testHelpers.createTestEntreprise();
+  const authToken = testHelpers.createTestToken(testUser.id, testUser.role);
+});

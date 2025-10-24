@@ -1,12 +1,12 @@
 /**
- * Configuration et utilitaires de logging avec Winston
+ * Logger cockpitifié avec Winston + rotation journalière
  */
 
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const path = require('path');
 
-// Niveaux de log personnalisés
+// Définition des niveaux personnalisés
 const levels = {
   error: 0,
   warn: 1,
@@ -26,29 +26,30 @@ const colors = {
 
 winston.addColors(colors);
 
-// Format des logs
-const format = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+// Format console lisible
+const consoleFormat = winston.format.combine(
   winston.format.colorize({ all: true }),
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message}`,
-  ),
-);
-
-// Transports selon l'environnement
-const transports = [];
-
-// Console (toujours actif)
-transports.push(
-  new winston.transports.Console({
-    format: format,
-    level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug'
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.printf(({ timestamp, level, message }) => {
+    return `${timestamp} ${level}: ${message}`;
   })
 );
 
-// Fichiers rotatifs (pas en test)
+// Format JSON pour fichiers
+const fileFormat = winston.format.combine(
+  winston.format.timestamp(),
+  winston.format.json()
+);
+
+// Transports dynamiques
+const transports = [
+  new winston.transports.Console({
+    level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
+    format: consoleFormat
+  })
+];
+
 if (process.env.NODE_ENV !== 'test') {
-  // Logs d'erreurs
   transports.push(
     new DailyRotateFile({
       filename: path.join('logs', 'error-%DATE%.log'),
@@ -57,65 +58,49 @@ if (process.env.NODE_ENV !== 'test') {
       handleExceptions: true,
       maxSize: '20m',
       maxFiles: '14d',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      )
-    })
-  );
-
-  // Logs combinés
-  transports.push(
+      format: fileFormat
+    }),
     new DailyRotateFile({
       filename: path.join('logs', 'combined-%DATE%.log'),
       datePattern: 'YYYY-MM-DD',
       maxSize: '20m',
       maxFiles: '14d',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      )
+      format: fileFormat
     })
   );
 }
 
-// Créer le logger
+// Création du logger principal
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   levels,
-  format: winston.format.json(),
+  format: fileFormat,
   defaultMeta: { service: 'heraclion-backend' },
   transports,
-  exitOnError: false,
+  exitOnError: false
 });
 
-// Gestion des exceptions non gérées
-logger.exceptions.handle(
-  new winston.transports.File({ filename: path.join('logs', 'exceptions.log') })
-);
+// Gestion des exceptions et rejections
+if (process.env.NODE_ENV !== 'test') {
+  logger.exceptions.handle(
+    new winston.transports.File({ filename: path.join('logs', 'exceptions.log') })
+  );
 
-// Gestion des rejections non gérées
-logger.rejections.handle(
-  new winston.transports.File({ filename: path.join('logs', 'rejections.log') })
-);
+  logger.rejections.handle(
+    new winston.transports.File({ filename: path.join('logs', 'rejections.log') })
+  );
+}
 
 /**
- * Logger pour les requêtes HTTP
- * @param {object} req - Objet request Express
- * @param {object} res - Objet response Express
- * @param {Function} next - Fonction next d'Express
+ * Middleware Express pour logger les requêtes HTTP
  */
 const morganLogger = (req, res, next) => {
-  logger.http(`${req.method} ${req.url} - ${req.ip}`);
+  logger.http(`${req.method} ${req.originalUrl} - ${req.ip}`);
   next();
 };
 
 /**
- * Logger d'erreurs pour Express
- * @param {Error} err - Erreur
- * @param {object} req - Objet request Express
- * @param {object} res - Objet response Express
- * @param {Function} next - Fonction next d'Express
+ * Middleware Express pour logger les erreurs
  */
 const errorLogger = (err, req, res, next) => {
   logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -124,12 +109,8 @@ const errorLogger = (err, req, res, next) => {
 
 /**
  * Créer un logger enfant avec un contexte spécifique
- * @param {string} service - Nom du service
- * @returns {object} Logger enfant
  */
-const createChildLogger = (service) => {
-  return logger.child({ service });
-};
+const createChildLogger = (service) => logger.child({ service });
 
 module.exports = {
   logger,

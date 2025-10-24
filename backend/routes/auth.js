@@ -8,7 +8,7 @@ const BaseModel = require('../models/BaseModel');
 const { logger } = require('../utils/logger');
 
 const router = express.Router();
-const User = new BaseModel('utilisateurs');
+const User = new BaseModel('users');
 const { logConnexion } = require('../utils/connexionLog');
 
 /**
@@ -111,6 +111,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Défensive: vérifier la présence d'un JWT_SECRET valide
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret || jwtSecret === '__GENERATED_JWT_SECRET__' || jwtSecret === 'your_super_secret_jwt_key_here_change_in_production') {
+      const errMsg = `JWT_SECRET non configuré correctement (value=${jwtSecret})`;
+      logger.error(errMsg);
+      return res.status(500).json({ success: false, message: 'Erreur serveur: JWT non configuré' , details: errMsg });
+    }
+
     // Générer le token JWT
     const token = jwt.sign(
       { 
@@ -118,7 +126,7 @@ router.post('/login', async (req, res) => {
         email: user.email, 
         role: user.role 
       },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
 
@@ -139,10 +147,11 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     logger.error('Erreur lors de la connexion:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur interne du serveur'
-    });
+    if (error instanceof Error) {
+      res.status(500).json({ message: 'Erreur interne du serveur', error: error.message, stack: error.stack });
+    } else {
+      res.status(500).json({ message: 'Erreur interne du serveur', error });
+    }
   }
 });
 
@@ -233,4 +242,4 @@ function authenticateToken(req, res, next) {
   });
 }
 
-module.exports = { router, authenticateToken };
+module.exports = router;

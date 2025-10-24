@@ -62,23 +62,23 @@ async function seedData() {
     // 3. Vérifier et insérer des utilisateurs
     console.log('🔐 Insertion des utilisateurs...');
     
-    const existingUsers = await client.query('SELECT COUNT(*) FROM utilisateurs');
+  const existingUsers = await client.query('SELECT COUNT(*) FROM users');
     if (parseInt(existingUsers.rows[0].count) === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      const hashedPassword2 = await bcrypt.hash('gestionnaire123', 10);
-      const hashedPassword3 = await bcrypt.hash('comptable123', 10);
+        const hashedPassword = await bcrypt.hash('admin123', 10); // Hash for admin
+        const hashedPassword2 = await bcrypt.hash('gestionnaire123', 10); // Hash for manager
+        const hashedPassword3 = await bcrypt.hash('comptable123', 10); // Hash for accountant
       
       await client.query(`
-        INSERT INTO utilisateurs (nom, email, password_hash, role, actif) 
+          INSERT INTO users (nom, prenom, email, mot_de_passe, password_hash, role, actif) 
         VALUES 
-        ('Administrateur Système', 'admin@heraclion.fr', $1, 'ADMIN', true),
-        ('Marie Gestionnaire', 'gestionnaire@heraclion.fr', $2, 'GESTIONNAIRE', true),
-        ('Pierre Comptable', 'comptable@heraclion.fr', $3, 'COMPTABLE', true),
-        ('Julie Commercial', 'commercial@heraclion.fr', $1, 'ADMIN', true)
+          ('Administrateur Système', 'Super', 'admin@heraclion.fr', 'x', $1, 'ADMIN', true),
+          ('Marie Gestionnaire', 'Super', 'gestionnaire@heraclion.fr', 'x', $2, 'GESTIONNAIRE', true),
+          ('Pierre Comptable', 'Super', 'comptable@heraclion.fr', 'x', $3, 'COMPTABLE', true),
+          ('Julie Commercial', 'Super', 'commercial@heraclion.fr', 'x', $1, 'ADMIN', true)
       `, [hashedPassword, hashedPassword2, hashedPassword3]);
-      console.log('   ✅ 4 utilisateurs insérés');
+  console.log('   ✅ 4 users insérés');
     } else {
-      console.log('   ⚠️ Utilisateurs déjà présents, insertion ignorée');
+  console.log('   ⚠️ Users déjà présents, insertion ignorée');
     }
     
     // 4. Vérifier et insérer des articles de stock
@@ -132,7 +132,7 @@ async function seedData() {
       SELECT 
         (SELECT COUNT(*) FROM entreprises) as entreprises,
         (SELECT COUNT(*) FROM clients) as clients,
-        (SELECT COUNT(*) FROM utilisateurs) as utilisateurs,
+  (SELECT COUNT(*) FROM users) as users,
         (SELECT COUNT(*) FROM stocks) as articles_stock,
         (SELECT COUNT(*) FROM documents) as documents
     `);
@@ -140,7 +140,7 @@ async function seedData() {
     console.log('📈 Résumé des données insérées :');
     console.log(`   - 🏢 Entreprises : ${stats.rows[0].entreprises}`);
     console.log(`   - 👥 Clients : ${stats.rows[0].clients}`);
-    console.log(`   - 🔐 Utilisateurs : ${stats.rows[0].utilisateurs}`);
+  console.log(`   - 🔐 Users : ${stats.rows[0].users}`);
     console.log(`   - 📦 Articles stock : ${stats.rows[0].articles_stock}`);
     console.log(`   - 📄 Documents : ${stats.rows[0].documents}`);
     

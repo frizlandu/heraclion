@@ -3,8 +3,8 @@
  */
 const axios = require('axios');
 
-const API_BASE = 'http://localhost:3001/api/v1';
-const API_DOCS = 'http://localhost:3001/api/docs';
+const API_BASE = 'https://heraclion.onrender.com/api/v1';
+const API_DOCS = 'https://heraclion.onrender.com/api/v1/docs';
 
 // Configuration axios avec timeout
 axios.defaults.timeout = 5000;
@@ -23,7 +23,7 @@ async function testAPI() {
     totalTests++;
     console.log('\n1️⃣ Test de santé du serveur...');
     try {
-      const health = await axios.get(`${API_BASE}/health`);
+  const health = await axios.get(`https://heraclion.onrender.com/api/health`);
       console.log('✅ Serveur en ligne :', health.data.status || 'OK');
       if (health.data.uptime) {
         console.log(`   ⏱️  Uptime: ${Math.round(health.data.uptime)}s`);
@@ -37,7 +37,7 @@ async function testAPI() {
     totalTests++;
     console.log('\n2️⃣ Test accès documentation...');
     try {
-      const docs = await axios.get('http://localhost:3001/api/docs');
+  const docs = await axios.get('https://heraclion.onrender.com/api/docs');
       console.log('✅ Documentation Swagger accessible');
       passedTests++;
     } catch (error) {
@@ -249,5 +249,11 @@ if (require.main === module) {
       process.exit(1);
     });
 }
+afterAll(() => {
+  if (global.server && typeof global.server.close === 'function') {
+    global.server.close();
+  }
+});
+
 
 module.exports = { testAPI };

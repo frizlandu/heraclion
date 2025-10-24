@@ -1,0 +1,26 @@
+{
+  "date": "2025-10-24T16:55:35.370Z",
+  "status": {
+    "date": "2025-10-24",
+    "tests": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "couverture": {
+      "statements": "0%",
+      "branches": "0%",
+      "functions": "0%",
+      "lines": "0%"
+    },
+    "uptime": "0%",
+    "logs": "En attente d'exécution",
+    "status": "warn"
+  },
+  "scanIssues": [
+    "⚠️ afterAll() ne ferme pas le serveur",
+    "❌ Mauvais export (pas de router)",
+    "❌ Mauvais export (pas de router)"
+  ],
+  "verifyIssues": []
+}

@@ -352,3 +352,9 @@ describe('API Integration Tests', () => {
     });
   });
 });
+
+afterAll(async () => {
+  if (global.server && typeof global.server.close === 'function') {
+    await new Promise((resolve) => global.server.close(resolve));
+  }
+});

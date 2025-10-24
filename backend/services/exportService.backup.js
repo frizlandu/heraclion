@@ -1,4 +1,5 @@
-const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
+
 const csvWriter = require('csv-writer');
 const csvParser = require('csv-parser');
 const fs = require('fs');
