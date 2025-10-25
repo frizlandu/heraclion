@@ -10,25 +10,39 @@ jobs:
   backend:
     name: Build & Test Backend
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        ports: [5432:5432]
+        env:
+          POSTGRES_DB: heraclion
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: maclaine2013
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v3
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
+          node-version: '20'
+      - name: Setup environment variables
+        run: |
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/heraclion" >> $GITHUB_ENV
       - name: Install backend deps
         working-directory: backend
         run: npm ci
-
+      - name: Run migrations
+        working-directory: backend
+        run: npm run migrate
       - name: Start backend server
         working-directory: backend
-        run: npm run start &
-      
+        run: PORT=3000 npm run start &
       - name: Wait for /ping to respond
         run: npx wait-on http://localhost:3000/ping
-
       - name: Run /ping test
         working-directory: backend
         run: npm run test:ping
@@ -38,20 +52,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
+          node-version: '20'
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
-
       - name: Build frontend
         working-directory: frontend
         run: npm run build --if-present
-
       - name: Upload frontend build
         uses: actions/upload-artifact@v4
         with:
