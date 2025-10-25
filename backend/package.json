@@ -45,7 +45,6 @@
     "test:report:copy": "npm run test:report && cp scan-report.json ../frontend/public/scan-report.json",
     "test:full": "npm run test:report && npm run posttest",
     "test:ping": "node test/ping.test.js"
-
   },
   "dependencies": {
     "archiver": "^7.0.1",
@@ -102,8 +101,8 @@
     "nodemon": "^3.0.2",
     "prettier": "^3.1.1",
     "supertest": "^6.3.4",
-    "wait-port": "^1.1.0",
-    "wait-on": "^8.0.5"
+    "wait-on": "^8.0.5",
+    "wait-port": "^1.1.0"
   },
   "husky": {
     "hooks": {
