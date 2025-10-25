@@ -25,24 +25,38 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Setup environment variables
         run: |
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/heraclion" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:maclaine2013@localhost:5432/heraclion" >> $GITHUB_ENV
+
       - name: Install backend deps
         working-directory: backend
         run: npm ci
+
       - name: Run migrations
         working-directory: backend
         run: npm run migrate
+
       - name: Start backend server
         working-directory: backend
-        run: PORT=3000 npm run start &
+        env:
+          NODE_ENV: test
+          PORT: 3000
+        run: npm run start &
+
       - name: Wait for /ping to respond
-        run: npx wait-on http://localhost:3000/ping
+        uses: jakejarvis/wait-action@v1
+        with:
+          url: http://localhost:3000/ping
+          timeout: 120000
+          interval: 2000
+
       - name: Run /ping test
         working-directory: backend
         run: npm run test:ping
@@ -52,16 +66,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build --if-present
+
       - name: Upload frontend build
         uses: actions/upload-artifact@v4
         with:
