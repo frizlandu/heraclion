@@ -50,12 +50,10 @@ jobs:
           PORT: 3000
         run: npm run start &
 
-      - name: Wait for /ping to respond
-        uses: jakejarvis/wait-action@v1
-        with:
-          url: http://localhost:3000/ping
-          timeout: 120000
-          interval: 2000
+            - name: Wait for /ping to respond
+        working-directory: backend
+        run: npx wait-on --timeout=120000 http://localhost:3000/ping
+
 
       - name: Run /ping test
         working-directory: backend
