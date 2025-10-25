@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-// POST /api/caisse/archiver : archive toutes les opérations d'un mois donné
 const authorizeRoles = require('../middleware/authorizeRoles');
 const { authenticateToken } = require('./auth');
+const Caisse = require('../models/Caisse');
+const ExcelJS = require('exceljs');
+const db = require('../config/database');
+const PDFDocument = require('pdfkit');
+
+// POST /api/caisse/archiver : archive toutes les opérations d'un mois donné
 router.post('/archiver', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   const { annee, mois } = req.body;
   if (!annee || !mois) return res.status(400).json({ error: 'Année et mois requis' });
@@ -14,7 +19,6 @@ router.post('/archiver', authenticateToken, authorizeRoles('admin'), async (req,
     res.status(500).json({ error: 'Erreur serveur lors de l\'archivage' });
   }
 });
-// EXPORT PDF global des opérations de caisse
 
 // Export PDF harmonisé avec le tableau affiché
 router.get('/export/pdf', async (req, res) => {
@@ -25,7 +29,6 @@ router.get('/export/pdf', async (req, res) => {
     }
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="export-caisse.pdf"');
-    const PDFDocument = require('pdfkit');
     const doc = new PDFDocument({ size: 'A4', margin: 40 });
     doc.pipe(res);
     // Titre
@@ -49,12 +52,7 @@ router.get('/export/pdf', async (req, res) => {
       const type = op.type_operation ? op.type_operation.charAt(0).toUpperCase() + op.type_operation.slice(1).toLowerCase() : '';
       // Montant formaté
       let montant = Number(op.montant) || 0;
-      let montantStr = '';
-      if (montant < 0) {
-        montantStr = `${montant.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}`;
-      } else {
-        montantStr = `${montant.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}`;
-      }
+      let montantStr = montant.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' });
       doc.text(date, 40, doc.y, { continued: true, width: 70 });
       doc.text(libelle, 120, doc.y, { continued: true, width: 120 });
       doc.text(type, 250, doc.y, { continued: true, width: 50 });
@@ -68,16 +66,10 @@ router.get('/export/pdf', async (req, res) => {
   }
 });
 
-const ExcelJS = require('exceljs');
-
-// EXPORT Excel des opérations de caisse
-
-
 // Export Excel harmonisé avec le tableau affiché
 router.get('/export/excel', async (req, res) => {
   try {
     const operations = await Caisse.findAll();
-    const ExcelJS = require('exceljs');
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Caisse');
     sheet.columns = [
@@ -95,12 +87,7 @@ router.get('/export/excel', async (req, res) => {
       const type = op.type_operation ? op.type_operation.charAt(0).toUpperCase() + op.type_operation.slice(1).toLowerCase() : '';
       // Montant formaté
       let montant = Number(op.montant) || 0;
-      let montantStr = '';
-      if (montant < 0) {
-        montantStr = `${montant.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}`;
-      } else {
-        montantStr = `${montant.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}`;
-      }
+      let montantStr = montant.toLocaleString('fr-FR', { style: 'currency', currency: 'USD' });
       sheet.addRow({
         date,
         libelle,
@@ -118,11 +105,7 @@ router.get('/export/excel', async (req, res) => {
   }
 });
 
-
-// Les opérations sont maintenant stockées dans req.app.locals.operations
-
 // GET /api/caisse : liste filtrée depuis la base
-const Caisse = require('../models/Caisse');
 router.get('/', async (req, res) => {
   try {
     const { date_debut, date_fin, type, categorie, montant_min, montant_max, libelle } = req.query;
@@ -135,14 +118,12 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/caisse : ajout d'opération
-// Accept both legacy and frontend field names: libelle or description, type or type_operation
 router.post('/', async (req, res) => {
   try {
     const { date, date_operation, libelle, description, type, type_operation, montant, reference_document } = req.body;
     const dateValue = date_operation || date;
     const libelleValue = libelle || description || null;
     const typeValue = type || type_operation || null;
-    // montant may be a string when coming from some clients; try to coerce
     const montantNum = typeof montant === 'number' ? montant : (montant ? Number(montant) : NaN);
 
     if (!dateValue || !libelleValue || !typeValue || Number.isNaN(montantNum)) {
@@ -158,7 +139,6 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/caisse/solde : solde actuel
-const db = require('../config/database');
 router.get('/solde', async (req, res) => {
   try {
     const result = await db.query('SELECT COALESCE(SUM(montant),0) AS solde FROM caisse');
@@ -169,9 +149,7 @@ router.get('/solde', async (req, res) => {
   }
 });
 
-
 // PUT /api/caisse/:id : modifier une opération
-// Update: accept both description/libelle and type_operation/type
 router.put('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -198,7 +176,6 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    // Sauvegarde dans la corbeille avant suppression
     const op = await Caisse.findById(id);
     if (op) {
       try {
@@ -210,7 +187,9 @@ router.delete('/:id', async (req, res) => {
             req.user ? req.user.username : null
           ]
         );
-      } catch (corbeilleError) {}
+      } catch (corbeilleError) {
+        console.error('Erreur sauvegarde corbeille:', corbeilleError);
+      }
     }
     await Caisse.delete(id);
     res.json({ success: true });
@@ -220,13 +199,11 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-
 // GET /api/caisse/:id/bon : Générer un PDF du bon d'opération
-const PDFDocument = require('pdfkit');
 router.get('/:id/bon', async (req, res) => {
   const id = parseInt(req.params.id, 10);
   try {
-    const result = await require('../config/database').query('SELECT * FROM caisse WHERE id = $1', [id]);
+    const result = await db.query('SELECT * FROM caisse WHERE id = $1', [id]);
     const op = result.rows[0];
     if (!op) {
       return res.status(404).json({ error: 'Opération non trouvée' });
@@ -235,16 +212,19 @@ router.get('/:id/bon', async (req, res) => {
     res.setHeader('Content-Disposition', `inline; filename="bon-caisse-${op.id}.pdf"`);
     const doc = new PDFDocument({ size: 'A5', margin: 40 });
     doc.pipe(res);
-    // En-tête
-    doc.fontSize(18).text(`Bon de ${op.type_operation && op.type_operation.toUpperCase() === 'ENTREE' ? 'Entrée' : 'Sortie'} de Caisse`, { align: 'center' });
+    doc.fontSize(18).text(
+      `Bon de ${op.type_operation && op.type_operation.toUpperCase() === 'ENTREE' ? 'Entrée' : 'Sortie'} de Caisse`,
+      { align: 'center' }
+    );
     doc.moveDown();
-    // Infos principales
     doc.fontSize(12);
     doc.text(`N° opération : ${op.id}`);
     doc.text(`Date : ${op.date_operation}`);
     doc.text(`Libellé : ${op.description}`);
     doc.text(`Type : ${op.type_operation && op.type_operation.toUpperCase() === 'ENTREE' ? 'Entrée' : 'Sortie'}`);
-    doc.text(`Montant : ${Math.abs(Number(op.montant)).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}`);
+    doc.text(
+      `Montant : ${Math.abs(Number(op.montant)).toLocaleString('fr-FR', { style: 'currency', currency: 'USD' })}`
+    );
     doc.moveDown();
     doc.text('Signature:', { align: 'right' });
     doc.moveDown(2);
@@ -257,4 +237,3 @@ router.get('/:id/bon', async (req, res) => {
 });
 
 module.exports = router;
-console.log('Début routes/caisse.js');
